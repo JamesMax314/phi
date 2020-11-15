@@ -113,6 +113,8 @@ public class Detection implements SensorEventListener {
             }
         }
 
+        unregisterAllListeners();
+
         float[] batch = new float[6*batchSize];
         for (int i=0; i<3*batchSize; i++) {
             batch[i] = positionBatch.get(i);
@@ -145,6 +147,14 @@ public class Detection implements SensorEventListener {
                     magnetometerBatch.add(event.values[0]);
                     magnetometerBatch.add(event.values[1]);
                     magnetometerBatch.add(event.values[2]);
+                    if (positionBatch.size() < 3*batchSize){
+                        positionBatch.add((float) 0);
+                        positionBatch.add((float) 0);
+//                        Log.i(TAG, String.valueOf(event.values[0]));
+                        positionBatch.add(1f);
+                    } else {
+                        posFin = true;
+                    }
                 } else {
                     magFin = true;
                 }

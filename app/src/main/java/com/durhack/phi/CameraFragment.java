@@ -91,10 +91,10 @@ public class CameraFragment extends Fragment implements View.OnClickListener {
                 new Thread(runnable).start();
 //                drawVectors();
 //                float[] floatBatch = detection.collectBatch();
-                float[] B = new float[2];
-                B[0] = 8;
-                B[1] = -14;
-                drawVectors(10,-8, B);
+//                float[] B = new float[2];
+//                B[0] = 8;
+//                B[1] = -14;
+//                drawVectors(10,-8, B);
                 break;
         }
     }
@@ -112,11 +112,52 @@ public class CameraFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    class regressionRunnable implements Runnable{
+        float[] input;
+        Regression regression;
+        regressionRunnable(float[] in, Regression reg){
+            this.input = in;
+            this.regression = reg;
+        }
+
+        @Override
+        public void run() {
+            float[] output = this.regression.process(input);
+//            int a = 1;
+            // Posts message to main thread
+            mainHandler.post(() -> sampleField(output));
+        }
+    }
+
+    void sampleField(float[] output){
+        MainActivity context = (MainActivity) requireActivity();
+        Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+        ImageView imageView = (ImageView) context.findViewById(R.id.imageView1);
+        Canvas canvas = new Canvas(bitmap);
+
+        float scale = output[2];
+        float mu = 1;
+
+        float[] xs = new float[20];
+        float[] ys = new float[20];
+//        float[] Bs = new float[20*20][];
+
+        for (int i=0; i<20; i++){
+            xs[i] = (i-10) / scale;
+            ys[i] = (float) ((i-10) / scale * 1.5);
+            float[] Bs = calcB(mu, xs[i], ys[i], 0);
+            drawVectors(canvas, xs[i], ys[i], Bs);
+        }
+
+        imageView.setImageBitmap(bitmap);
+    }
+
     void saveBatch(float[] input){
         inputBatch = input;
         try {
             Regression regression = new Regression(activity, Regression.Device.CPU, 4);
-            float[] position = regression.process(input);
+            regressionRunnable runnable = new regressionRunnable(inputBatch, regression);
+            new Thread(runnable).start();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -136,45 +177,22 @@ public class CameraFragment extends Fragment implements View.OnClickListener {
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner) Objects.requireNonNull(getContext()), cameraSelector, preview);
     }
 
-
-//    def B(mu, x, y, z):
-//    r = np.sqrt(x**2 + y**2 + z**2)
-//    phi = np.arctan(y/x)
-//    theta = np.arccos(z/r)
-//
-//            # r_vec = spc(x, y, z)
-//    #
-//            # r_hat = r_vec / r
-//    # theta_hat = np.array([np.cos(phi)*np.cos(theta), np.sin(phi)*np.cos(theta), -np.sin(theta)])
-//            #
-//            # B = mu/r**3 * (r_hat*2*np.cos(theta) + theta_hat*np.sin(theta))
-//
-//
-//    B = 3*mu/(r**3) * float[]rhat={np.cos(phi), np.sin(phi), np.cos(theta)**2-1/3}
-//    B[0] = B[0]*np.sin(theta) * np.cos(theta)
-//    B[1] = B[1]*np.sin(theta) * np.cos(theta)
-//
-//            return B
-
     float[] calcB(float mu, float x,float y, float z){
        float r = (float) Math.sqrt(x*x + y*y + z*z);
         float   phi = (float) Math.atan(y/x);
         float   theta =(float) Math.acos(z/r);
         float[] B = new float[2];
-        B[0] = 3*mu/(r*r*r)*Math.cos(phi)*Math.sin((float)theta) * Math.cos((float)theta);
-        B[1] = 3*mu/(r*r*r)*Math.sin(phi)*Math.sin((float)theta) * Math.cos((float)theta);
+//        B[2] = 3*mu/(r**3) * -Math.sin(theta) - 1/3;
+        B[0] = (float) (3*mu/(r*r*r)*Math.cos(phi)*Math.sin(theta) * Math.cos(theta));
+        B[1] = (float) (3*mu/(r*r*r)*Math.sin(phi)*Math.sin(theta) * Math.cos(theta));
         return B;
-
     }
 
 
-    void drawVectors(float x,float y,float[]B){
+    void drawVectors(Canvas canvas, float x,float y,float[] B){
 //        float s = (float) Math.sin(t);
 //        float c = (float) Math.cos(t);
-        MainActivity context = (MainActivity) requireActivity();
-        Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-        ImageView imageView = (ImageView) context.findViewById(R.id.imageView1);
-        Canvas canvas = new Canvas(bitmap);
+
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(Color.BLACK);
         paint.setStyle(Paint.Style.STROKE);
@@ -195,6 +213,5 @@ public class CameraFragment extends Fragment implements View.OnClickListener {
 // next draw displaces 50,100 from previous
         path.offset(60, 100);
         canvas.drawPath(path, paint);
-        imageView.setImageBitmap(bitmap);
     }
 }
