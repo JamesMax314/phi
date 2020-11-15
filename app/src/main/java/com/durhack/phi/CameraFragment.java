@@ -25,6 +25,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 
+import com.google.ar.core.exceptions.CameraNotAvailableException;
+import com.google.ar.core.exceptions.NotYetAvailableException;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.IOException;
@@ -68,7 +70,11 @@ public class CameraFragment extends Fragment implements View.OnClickListener {
         button = view.findViewById(R.id.button);
         button.setOnClickListener(this);
 
-        detection = new Detection(context);
+        try {
+            detection = new Detection(context);
+        } catch (NotYetAvailableException | CameraNotAvailableException e) {
+            e.printStackTrace();
+        }
 
         // Inflate the layout for this fragment
         return view;

@@ -5,13 +5,29 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.Image;
+import android.os.Debug;
 import android.os.Handler;
+import android.util.Log;
+
+import com.google.ar.core.ArCoreApk;
+import com.google.ar.core.Config;
+import com.google.ar.core.Frame;
+import com.google.ar.core.Session;
+import com.google.ar.core.exceptions.CameraNotAvailableException;
+import com.google.ar.core.exceptions.NotYetAvailableException;
+import com.google.ar.core.exceptions.UnavailableApkTooOldException;
+import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
+import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
+import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Detection implements SensorEventListener {
+    private static final String TAG = "Detect";
+
     private final int batchSize = 100;
 
     private final SensorManager mSensorManager;
@@ -30,7 +46,7 @@ public class Detection implements SensorEventListener {
     private Boolean posFin;
     private Boolean magFin;
 
-    public Detection(Context mContext) {
+    public Detection(Context mContext) throws NotYetAvailableException, CameraNotAvailableException {
         context = mContext;
         mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         mSensorProximity = mSensorManager.getDefaultSensor(proximityType);
@@ -38,6 +54,35 @@ public class Detection implements SensorEventListener {
 //        mSensorManager.registerListener(this, mSensorMagnetometer, SensorManager.SENSOR_DELAY_NORMAL);
         positionBatch = new ArrayList<>();
         magnetometerBatch = new ArrayList<>();
+
+        // Check whether the user's device supports the Depth API.
+
+
+
+//        Session session = null;
+//        try {
+//            session = new Session(context);
+////            Frame frame = new Frame(session);
+//
+//        } catch (UnavailableArcoreNotInstalledException e) {
+//            e.printStackTrace();
+//        } catch (UnavailableApkTooOldException e) {
+//            e.printStackTrace();
+//        } catch (UnavailableSdkTooOldException e) {
+//            e.printStackTrace();
+//        } catch (UnavailableDeviceNotCompatibleException e) {
+//            e.printStackTrace();
+//        }
+//        boolean isDepthSupported = session.isDepthModeSupported(Config.DepthMode.AUTOMATIC);
+//        Config config = new Config(session);
+//        if (isDepthSupported) {
+//            config.setDepthMode(Config.DepthMode.AUTOMATIC);
+//        }
+//        session.configure(config);
+//
+//        Frame frame = session.update();
+//
+//        Image depthImage = frame.acquireDepthImage();
     }
 
     public float[] collectBatch() {
@@ -89,6 +134,7 @@ public class Detection implements SensorEventListener {
                 if (positionBatch.size() < 3*batchSize) {
                     positionBatch.add((float) 0);
                     positionBatch.add((float) 0);
+                    Log.i(TAG, String.valueOf(event.values[0]));
                     positionBatch.add(event.values[0]);
                 } else {
                     posFin = true;
