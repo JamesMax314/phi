@@ -11,8 +11,20 @@ class samples:
     translation = np.empty([3])
 
     def __init__(self, numPoints):
+        self.numPoints = numPoints
         self.positions = np.empty([numPoints, 3])
         self.forces = np.empty([numPoints, 3])
+
+    def flatten(self):
+        """ x=[pos_flat, force_flat] y=[tran_flat, angle_flat, mu] """
+        xFlat = np.append(self.positions.flatten(), 1e6*self.forces.flatten())
+        yFlat = np.append(self.translation.flatten(), 10*self.angle.flatten())
+        yFlat = np.append(yFlat, self.mu)
+
+        self.x = xFlat
+        self.y = yFlat
+
+
 
 def spc(x, y, z):
     r = np.sqrt(x**2 + y**2 + z**2)
@@ -98,7 +110,22 @@ def genSample(number, numSamples, mu_min, mu_max):
 
             sampleSet[i].positions[j] = pointRotTrans
 
+        sampleSet[i].flatten()
+
     return sampleSet
+
+def preProcess(sam):
+    # with open(file, "rb") as f:
+    #     sam = pkl.load(f)
+
+    numSamples = sam.shape[0]
+    x = np.empty([numSamples, sam[0].x.shape[0]])
+    y = np.empty([numSamples, sam[0].y.shape[0]])
+    for i in range(sam.shape[0]):
+        x[i, :] = sam[i].x
+        y[i, :] = sam[i].y
+
+    return x, y
 
 
 if __name__ == "__main__":
@@ -115,9 +142,15 @@ if __name__ == "__main__":
     # # plt.imshow(np.abs(bs[1, :, :, 0]))
     # plt.show()
 
-    sam = genSample(1000, 100, 1, 10)
-    file = "./genDat1"
+    sam = genSample(1000, 100, 10, 100)
+    # file = "./genDat1"
+    # with open(file, "wb") as f:
+    #     pkl.dump(sam, f)
+
+    x, y = preProcess(sam)
+
+    file = "./preProc1.pkl"
     with open(file, "wb") as f:
-        pkl.dump(sam, f)
+        pkl.dump([x, y], f)
 
 
