@@ -144,9 +144,11 @@ public class CameraFragment extends Fragment implements View.OnClickListener {
 
         for (int i=0; i<20; i++){
             xs[i] = (i-10) / scale;
-            ys[i] = (float) ((i-10) / scale * 1.5);
-            float[] Bs = calcB(mu, xs[i], ys[i], 0);
-            drawVectors(canvas, xs[i], ys[i], Bs);
+            for (int j=0; j<20; j++) {
+                ys[j] = (float) ((j - 10) / scale * 1.5);
+                float[] Bs = calcB(mu, xs[i], ys[j], 0);
+                drawVectors(canvas, xs[i], ys[j], Bs);
+            }
         }
 
         imageView.setImageBitmap(bitmap);
