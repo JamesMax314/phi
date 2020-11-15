@@ -6,34 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-<!--    <RelativeLayout-->
-<!--        android:layout_width="406dp"-->
-<!--        android:layout_height="743dp"-->
-<!--        android:alpha="0.5"-->
-<!--        android:background="@color/white"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent">-->
-
-<!--        <androidx.camera.view.PreviewView-->
-<!--            android:id="@+id/previewView"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent">-->
-<!--            -->
-
-<!--            <ImageView-->
-<!--                android:id="@+id/imageView"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:alpha="0.3"-->
-<!--                app:srcCompat="@drawable/ic_launcher_background" />-->
-
-
-<!--        </androidx.camera.view.PreviewView>-->
-
-
-<!--    </RelativeLayout>-->
 
 
     <androidx.camera.view.PreviewView
@@ -47,12 +19,6 @@
         margin
 
 
-<!--        <ImageView-->
-<!--            android:id="@+id/imageView"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:alpha="0.5"-->
-<!--            app:srcCompat="@drawable/ic_launcher_background" />-->
 
 
 
@@ -69,6 +35,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_launcher_background" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="500dp"
+        android:text="Steal Launch Codes"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 
