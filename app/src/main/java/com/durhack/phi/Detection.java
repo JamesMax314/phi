@@ -13,28 +13,39 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Detection implements SensorEventListener {
     private final int batchSize = 100;
-    private final int samplingTimeMilliseconds = 3000;
 
-    private SensorManager mSensorManager;
+    private final SensorManager mSensorManager;
 
     private final int proximityType = Sensor.TYPE_PROXIMITY;
     private final int magnetometerType = Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED;
 
-    private Sensor mSensorProximity;
-    private Sensor mSensorMagnetometer;
+    private final Sensor mSensorProximity;
+    private final Sensor mSensorMagnetometer;
 
-    private List<Float> positionBatch;
-    private List<Float> magnetometerBatch;
+    private final List<Float> positionBatch;
+    private final List<Float> magnetometerBatch;
 
-    public Detection(Context context) {
+    private final Context context;
+
+    private Boolean posFin;
+    private Boolean magFin;
+
+    public Detection(Context mContext) {
+        context = mContext;
         mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         mSensorProximity = mSensorManager.getDefaultSensor(proximityType);
         mSensorMagnetometer = mSensorManager.getDefaultSensor(magnetometerType);
+//        mSensorManager.registerListener(this, mSensorMagnetometer, SensorManager.SENSOR_DELAY_NORMAL);
         positionBatch = new ArrayList<>();
         magnetometerBatch = new ArrayList<>();
     }
 
     public float[] collectBatch() {
+        int samplingTimeMilliseconds = 3000;
+
+        posFin = false;
+        magFin = false;
+
         if (mSensorMagnetometer != null) {
             mSensorManager.registerListener(this, mSensorMagnetometer, samplingTimeMilliseconds*1000/batchSize);
         }
@@ -44,12 +55,12 @@ public class Detection implements SensorEventListener {
 
         final SensorEventListener listener = this;
         AtomicBoolean collectionStopped = new AtomicBoolean(false);
-        new Handler().postDelayed(() -> {
-            mSensorManager.unregisterListener(listener);
-            collectionStopped.set(true);
-        }, samplingTimeMilliseconds);
+//        new Handler().postDelayed(() -> {
+//            mSensorManager.unregisterListener(listener);
+//            collectionStopped.set(true);
+//        }, samplingTimeMilliseconds);
 
-        while (!collectionStopped.get()) {
+        while (!posFin || !magFin) {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException ex) {
@@ -79,6 +90,8 @@ public class Detection implements SensorEventListener {
                     positionBatch.add((float) 0);
                     positionBatch.add((float) 0);
                     positionBatch.add(event.values[0]);
+                } else {
+                    posFin = true;
                 }
                 break;
             case magnetometerType:
@@ -86,6 +99,8 @@ public class Detection implements SensorEventListener {
                     magnetometerBatch.add(event.values[0]);
                     magnetometerBatch.add(event.values[1]);
                     magnetometerBatch.add(event.values[2]);
+                } else {
+                    magFin = true;
                 }
                 break;
             default:
@@ -98,3 +113,5 @@ public class Detection implements SensorEventListener {
         // Do nothing
     }
 }
+
+

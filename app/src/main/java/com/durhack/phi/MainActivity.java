@@ -17,12 +17,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        try {
-            Regression regression = new Regression(this, Regression.Device.CPU, 4);
-//            regression.process();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
 
 
 

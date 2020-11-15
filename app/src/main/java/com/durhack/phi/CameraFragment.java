@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,7 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -36,6 +38,12 @@ public class CameraFragment extends Fragment implements View.OnClickListener {
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
 
     private Button button;
+    public Detection detection;
+    public float[] inputBatch;
+
+    private MainActivity activity;
+
+    private final Handler mainHandler = new Handler();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -43,6 +51,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener {
         View view = inflater.inflate(R.layout.fragment_preview, container, false);
 
         MainActivity context = (MainActivity) requireActivity();
+        activity = context;
 
         previewView = view.findViewById(R.id.previewView);
         cameraProviderFuture = ProcessCameraProvider.getInstance(context);
@@ -59,6 +68,8 @@ public class CameraFragment extends Fragment implements View.OnClickListener {
         button = view.findViewById(R.id.button);
         button.setOnClickListener(this);
 
+        detection = new Detection(context);
+
         // Inflate the layout for this fragment
         return view;
 
@@ -69,9 +80,37 @@ public class CameraFragment extends Fragment implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.button:
                 Log.i(TAG, "onClick: cam_button");
+                detectRunnable runnable = new detectRunnable();
+                new Thread(runnable).start();
+//                drawVectors();
+//                float[] floatBatch = detection.collectBatch();
                 drawVectors();
                 break;
         }
+    }
+
+    class detectRunnable implements Runnable{
+        detectRunnable(){
+        }
+
+        @Override
+        public void run() {
+            float[] input = detection.collectBatch();
+            int a = 1;
+            // Posts message to main thread
+            mainHandler.post(() -> saveBatch(input));
+        }
+    }
+
+    void saveBatch(float[] input){
+        inputBatch = input;
+        try {
+            Regression regression = new Regression(activity, Regression.Device.CPU, 4);
+            float[] position = regression.process(input);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//        float[]
     }
 
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
