@@ -1,8 +1,12 @@
 package com.durhack.phi;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -64,5 +68,14 @@ public class CameraFragment extends Fragment {
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner) Objects.requireNonNull(getContext()), cameraSelector, preview);
+    }
+
+    void drawVectors(){
+        MainActivity context = (MainActivity) requireActivity();
+        ImageView imageView = (ImageView) context.findViewById(R.id.image);
+        Canvas canvas = new Canvas();
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setColor(Color.BLACK);
+        canvas.drawCircle(50, 50, 10, paint);
     }
 }

@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentManager;
 import android.os.Bundle;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,14 +27,19 @@ public class MainActivity extends AppCompatActivity {
 
 
         fragmentManager = getSupportFragmentManager();
+//        CameraFragment cameraFragment = new CameraFragment();
 
         if (findViewById(R.id.fragment_container) != null){
             if (savedInstanceState != null){
                 return;
             }
             fragmentManager.beginTransaction()
-                    .add(R.id.fragment_container, new CameraFragment())
+                    .add(R.id.fragment_container, new CameraFragment(), "camFrag")
                     .commit();
         }
+
+//        assert savedInstanceState != null;
+//        ((CameraFragment) Objects.requireNonNull(fragmentManager.getFragment(savedInstanceState, "camFrag"))).drawVectors();
+//        cameraFragment.drawVectors();
     }
 }
