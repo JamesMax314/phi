@@ -38,6 +38,7 @@ if __name__ == "__main__":
             layers.Dense(50, activation="relu", name="dense", kernel_initializer="normal"),
             layers.Dense(50, activation="relu", name="dense1", kernel_initializer="normal"),
             layers.Dense(50, activation="relu", name="dense2", kernel_initializer="normal"),
+            layers.Dense(50, activation="relu", name="dense4", kernel_initializer="normal"),
             layers.Dense(y.shape[1], activation="linear", name="dense3", kernel_initializer="normal"),
         ]
     )
@@ -47,7 +48,8 @@ if __name__ == "__main__":
                   loss="msle",
                   metrics=[tf.keras.metrics.MeanSquaredLogarithmicError(), "accuracy", "mae"])
 
-    hist = model.fit(x, y, epochs=300, batch_size=32, validation_data=(xT, yT))
+    hist = model.fit(x, y, epochs=30, validation_data=(xT, yT))
+    model.save('./model')
     plt.plot(hist.history["mae"])
     plt.show()
 

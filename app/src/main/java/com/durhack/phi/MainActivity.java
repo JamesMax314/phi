@@ -5,6 +5,8 @@ import androidx.fragment.app.FragmentManager;
 
 import android.os.Bundle;
 
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity {
 
     FragmentManager fragmentManager;
@@ -13,6 +15,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        try {
+            Regression regression = new Regression(this, Regression.Device.CPU, 4);
+//            regression.process();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
 
         fragmentManager = getSupportFragmentManager();
 

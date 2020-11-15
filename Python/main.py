@@ -17,9 +17,9 @@ class samples:
 
     def flatten(self):
         """ x=[pos_flat, force_flat] y=[tran_flat, angle_flat, mu] """
-        xFlat = np.append(self.positions.flatten(), 1e6*self.forces.flatten())
+        xFlat = np.append(self.positions.flatten(), 1e2*self.forces.flatten())
         yFlat = np.append(self.translation.flatten(), 10*self.angle.flatten())
-        yFlat = np.append(yFlat, self.mu)
+        yFlat = np.append(yFlat, 1e2*self.mu)
 
         self.x = xFlat
         self.y = yFlat
@@ -83,9 +83,9 @@ def genSample(number, numSamples, mu_min, mu_max):
     for i in range(number):
         sampleSet[i] = samples(numSamples)
         sampleSet[i].mu = mus[i]
-        offset = np.array([pm()*np.random.uniform(10, 100, 1),
-                           pm()*np.random.uniform(10, 100, 1),
-                           pm()*np.random.uniform(10, 100, 1)])
+        offset = np.array([pm()*np.random.uniform(0.1, 1, 1),
+                           pm()*np.random.uniform(0.1, 1, 1),
+                           pm()*np.random.uniform(0.1, 1, 1)])
 
         translate = np.array(np.random.uniform(-100, 100, 3))
 
@@ -96,9 +96,9 @@ def genSample(number, numSamples, mu_min, mu_max):
         sampleSet[i].angle = angles
 
         for j in range(numSamples):
-            point = np.array([np.random.uniform(-15, 15, 1),
-                           np.random.uniform(-15, 15, 1),
-                           np.random.uniform(-15, 15, 1)])
+            point = np.array([np.random.uniform(-0.015, 0.015, 1),
+                           np.random.uniform(-0.015, 0.015, 1),
+                           np.random.uniform(-0.015, 0.015, 1)])
             point += offset
             sampleSet[i].forces[j] = B(mus[i], point[0], point[1], point[2])[0]
 
@@ -106,7 +106,7 @@ def genSample(number, numSamples, mu_min, mu_max):
 
             rotZ = Rz(angles[0])
             rotX = Rx(angles[1])
-            pointRotTrans = rotX.dot(rotZ.dot(pointTrans))
+            pointRotTrans = rotZ.dot(rotX.dot(pointTrans))
 
             sampleSet[i].positions[j] = pointRotTrans
 
@@ -142,14 +142,14 @@ if __name__ == "__main__":
     # # plt.imshow(np.abs(bs[1, :, :, 0]))
     # plt.show()
 
-    sam = genSample(1000, 100, 10, 100)
+    sam = genSample(10000, 100, 0.01, 1)
     # file = "./genDat1"
     # with open(file, "wb") as f:
     #     pkl.dump(sam, f)
 
     x, y = preProcess(sam)
 
-    file = "./preProc1.pkl"
+    file = "./preProc3.pkl"
     with open(file, "wb") as f:
         pkl.dump([x, y], f)
 
