@@ -1,11 +1,14 @@
 package com.durhack.phi;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -26,10 +29,13 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
-public class CameraFragment extends Fragment {
+public class CameraFragment extends Fragment implements View.OnClickListener {
+    private static final String TAG = "CamFrag";
 
     PreviewView previewView;
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
+
+    private Button button;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -39,9 +45,7 @@ public class CameraFragment extends Fragment {
         MainActivity context = (MainActivity) requireActivity();
 
         previewView = view.findViewById(R.id.previewView);
-
         cameraProviderFuture = ProcessCameraProvider.getInstance(context);
-
         cameraProviderFuture.addListener(() -> {
             try {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
@@ -52,9 +56,22 @@ public class CameraFragment extends Fragment {
             }
         }, ContextCompat.getMainExecutor(context));
 
+        button = view.findViewById(R.id.button);
+        button.setOnClickListener(this);
+
         // Inflate the layout for this fragment
         return view;
 
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.button:
+                Log.i(TAG, "onClick: cam_button");
+                drawVectors();
+                break;
+        }
     }
 
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
@@ -72,10 +89,12 @@ public class CameraFragment extends Fragment {
 
     void drawVectors(){
         MainActivity context = (MainActivity) requireActivity();
-        ImageView imageView = (ImageView) context.findViewById(R.id.image);
-        Canvas canvas = new Canvas();
+        Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+        ImageView imageView = (ImageView) context.findViewById(R.id.imageView1);
+        Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(Color.BLACK);
         canvas.drawCircle(50, 50, 10, paint);
+        imageView.setImageBitmap(bitmap);
     }
 }
